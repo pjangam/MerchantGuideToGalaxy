@@ -1,8 +1,6 @@
-class Question(words: List<String>, private val language: Language) {
+class Question(private val words: List<String>) {
     private val questionType: QuestionType
-    private val metal: String
     private val crypticRoman: List<String>
-    private val romanNumber: RomanNumber
 
     init {
         require(isQuestion(words))
@@ -11,33 +9,36 @@ class Question(words: List<String>, private val language: Language) {
             QuestionType.NumberValue.matches(words) -> QuestionType.NumberValue
             else -> QuestionType.Blah
         }
-        metal = if (questionType == QuestionType.MetalCost) words[words.count() - 2] else ""
         crypticRoman = words
             .drop(questionType.whWordsCount)
             .take(words.count() - questionType.nonNumberWords)
-        romanNumber = if (questionType != QuestionType.Blah) RomanNumber(getRomanNumber()) else RomanNumber()
     }
 
     companion object {
-        fun isQuestion(line: String): Boolean {
-            return line.trim().endsWith('?')
-        }
-
         fun isQuestion(words: List<String>): Boolean {
             return words.last() == "?"
         }
     }
 
-    private fun getRomanNumber(): String = language.toEnglish(crypticRoman)
-    private fun metalCost(costLedger: CostLedger): Double = if (metal.isEmpty()) 1.0 else (costLedger.get(metal))
+    fun getAnswer(costLedger: CostLedger, language: Language): String {
+        val romanValue = getNumber(language)
 
-    fun getAnswer(costLedger: CostLedger): String {
-
-        val totalValue: Double = romanNumber.toInt() * (metalCost(costLedger))
         return when (questionType) {
-            QuestionType.NumberValue -> "${crypticRoman.joinToString(" ")} is ${totalValue.toInt()}"
-            QuestionType.MetalCost -> "${crypticRoman.joinToString(" ")} $metal is ${totalValue.toInt()} Credits"
+            QuestionType.NumberValue -> "${crypticRoman.joinToString(" ")} is $romanValue"
+            QuestionType.MetalCost -> {
+                val metal = words[words.count() - 2]
+                val totalValue: Double = romanValue * (costLedger.get(metal))
+                "${crypticRoman.joinToString(" ")} $metal is ${totalValue.toInt()} Credits"
+            }
             QuestionType.Blah -> "I have no idea what you are talking about"
+        }
+    }
+
+    private fun getNumber(language: Language): Int {
+        return if (questionType == QuestionType.Blah) 0 else {
+            val romanString = language.toEnglish(crypticRoman)
+            RomanNumber(romanString)
+                .toInt()
         }
     }
 }

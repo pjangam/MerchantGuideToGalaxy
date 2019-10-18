@@ -16,8 +16,8 @@ object Merchant {
                 words.isMapping() -> language.enrich(words)
                 words.isCostLedger() -> costLedger.add(words, language)
                 words.isQuestion() -> {
-                    val question = Question(words, language)
-                    result.add(question.getAnswer(costLedger))
+                    val question = Question(words)
+                    result.add(question.getAnswer(costLedger, language))
                 }
             }
         }

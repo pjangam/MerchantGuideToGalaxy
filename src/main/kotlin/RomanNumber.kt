@@ -1,4 +1,4 @@
-class RomanNumber(val roman: List<Char> = emptyList()) {
+class RomanNumber(private val roman: List<Char> = emptyList()) {
     companion object {
         var romanNotation = hashMapOf('I' to 1, 'V' to 5, 'X' to 10, 'L' to 50, 'C' to 100, 'D' to 500, 'M' to 1000)
 
@@ -7,7 +7,7 @@ class RomanNumber(val roman: List<Char> = emptyList()) {
         }
     }
 
-    constructor(data: String) : this(data.toCharArray().toList()) {}
+    constructor(data: String) : this(data.toCharArray().toList())
 
     fun toInt(): Int {
         var res = 0
